@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   loadProducts,
@@ -9,12 +9,15 @@ import {
 } from './productsReducer';
 import type { AppDispatch } from './store';
 import ProductCard from './components/ProductCard';
+import AddProductForm from './components/AddProductForm';
 
 const App: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const products = useSelector(selectProducts);
   const loading = useSelector(selectProductsLoading);
   const error = useSelector(selectProductsError);
+
+  const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
     dispatch(loadProducts());
@@ -40,6 +43,14 @@ const App: React.FC = () => {
           <option value="price-desc">Цене (убывание)</option>
           <option value="rating-desc">Рейтингу</option>
         </select>
+      </div>
+
+      <div style={{ marginBottom: 20 }}>
+        {!isAdding ? (
+          <button onClick={() => setIsAdding(true)}>Добавить товар</button>
+        ) : (
+          <AddProductForm onClose={() => setIsAdding(false)} />
+        )}
       </div>
 
       {products.map((p) => (
