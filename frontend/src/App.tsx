@@ -1,6 +1,12 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { loadProducts, selectProducts, selectProductsLoading, selectProductsError } from './productsReducer';
+import {
+  loadProducts,
+  selectProducts,
+  selectProductsLoading,
+  selectProductsError,
+  setSortOrder,
+} from './productsReducer';
 import type { AppDispatch } from './store';
 import ProductCard from './components/ProductCard';
 
@@ -11,8 +17,13 @@ const App: React.FC = () => {
   const error = useSelector(selectProductsError);
 
   useEffect(() => {
-    dispatch(loadProducts()); 
+    dispatch(loadProducts());
   }, [dispatch]);
+
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value as 'price-asc' | 'price-desc' | 'rating-desc' | null;
+    dispatch(setSortOrder(value));
+  };
 
   if (loading) return <p>Загрузка...</p>;
   if (error) return <p>Ошибка: {error}</p>;
@@ -20,10 +31,20 @@ const App: React.FC = () => {
   return (
     <div style={{ padding: 20 }}>
       <h1>Список товаров</h1>
-{products.map((p) => (
-  <ProductCard key={p.id} product={p} />
-))}
 
+      <div style={{ marginBottom: 20 }}>
+        <label htmlFor="sort">Сортировать по: </label>
+        <select id="sort" onChange={handleSortChange} defaultValue="">
+          <option value="">— без сортировки —</option>
+          <option value="price-asc">Цене (возрастание)</option>
+          <option value="price-desc">Цене (убывание)</option>
+          <option value="rating-desc">Рейтингу</option>
+        </select>
+      </div>
+
+      {products.map((p) => (
+        <ProductCard key={p.id} product={p} />
+      ))}
     </div>
   );
 };

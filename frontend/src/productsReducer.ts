@@ -5,12 +5,14 @@ interface ProductsState {
   items: Product[];    
   loading: boolean;    
   error?: string | null;
+  sortOrder: 'price-asc' | 'price-desc' | 'rating-desc' | null;
 }
 
 const initialState: ProductsState = {
   items: [],
   loading: false,
   error: null,
+  sortOrder: null,
 };
 
 export const loadProducts = createAsyncThunk<
@@ -34,6 +36,17 @@ const productsSlice = createSlice({
   name: 'products',
   initialState,
   reducers: {
+      setSortOrder(state, action: PayloadAction<'price-asc' | 'price-desc' | 'rating-desc' | null>) {
+    state.sortOrder = action.payload;
+
+    if (state.sortOrder === 'price-asc') {
+      state.items.sort((a, b) => a.price - b.price);
+    } else if (state.sortOrder === 'price-desc') {
+      state.items.sort((a, b) => b.price - a.price);
+    } else if (state.sortOrder === 'rating-desc') {
+      state.items.sort((a, b) => (b.rating?.rate ?? 0) - (a.rating?.rate ?? 0));
+    }
+  },
     setProducts(state, action: PayloadAction<Product[]>) {
       state.items = action.payload;
       state.error = null;
@@ -67,5 +80,6 @@ export const { setProducts, addLocalProduct, clearError } = productsSlice.action
 export const selectProducts = (state: { products: ProductsState }) => state.products.items;
 export const selectProductsLoading = (state: { products: ProductsState }) => state.products.loading;
 export const selectProductsError = (state: { products: ProductsState }) => state.products.error;
+export const { setSortOrder } = productsSlice.actions;
 
 export default productsSlice.reducer;
