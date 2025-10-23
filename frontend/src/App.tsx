@@ -1,35 +1,34 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { loadProducts, selectProducts, selectProductsLoading, selectProductsError } from './productsReducer';
+import type { AppDispatch } from './store';
 
-function App() {
-  const [count, setCount] = useState(0)
+const App: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const products = useSelector(selectProducts);
+  const loading = useSelector(selectProductsLoading);
+  const error = useSelector(selectProductsError);
+
+  useEffect(() => {
+    dispatch(loadProducts()); // при монтировании — загружаем товары
+  }, [dispatch]);
+
+  if (loading) return <p>Загрузка...</p>;
+  if (error) return <p>Ошибка: {error}</p>;
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div style={{ padding: 20 }}>
+      <h1>Список товаров</h1>
+      {products.map((p) => (
+        <div key={p.id} style={{ border: '1px solid #ddd', margin: '10px 0', padding: 10 }}>
+          <img src={p.image} alt={p.title} style={{ width: 50, height: 50, objectFit: 'contain' }} />
+          <p>{p.title}</p>
+          <p>Цена: ${p.price}</p>
+          <p>Рейтинг: {p.rating?.rate}</p>
+        </div>
+      ))}
+    </div>
+  );
+};
 
-export default App
+export default App;
